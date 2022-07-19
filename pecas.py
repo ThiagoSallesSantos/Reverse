@@ -1,23 +1,21 @@
+from jogada import Jogada
 from typing import List, Tuple, Union
 
 class Pecas:
     
-    __slots__ = ('_cor', '_posicao_pecas', '_jogadas_disponiveis', '_ganho_jogada')
+    __slots__ = ('_cor', '_posicao_pecas', '_jogadas_disponiveis')
 
     def __init__(self, cor: str, posicoes_iniciais: List[Tuple[int, int]]) -> None:
         self._cor = cor
         self._posicao_pecas = [] + posicoes_iniciais
-        self._jogadas_disponiveis = dict({})
-        self._ganho_jogada = dict({})
+        self._jogadas_disponiveis = []
 
-    def set_jogada_disponivel(self, args: Union[Tuple[str, Tuple[int, int], int], Tuple[str, None]]) -> None:
-        if args:
-            self._jogadas_disponiveis.update(dict({args[0] : args[1]}))
-            self._ganho_jogada.update({args[1] : args[2]})
+    def set_jogada_disponivel(self, jogada: Jogada) -> None:
+        if jogada:
+            self._jogadas_disponiveis.append(jogada)
 
     def adiciona_posicao(self, lista_posicoes: List[Tuple[int, int]]) -> None:
         self._posicao_pecas += lista_posicoes
-        self._reseta_jogadas_disponiveis
 
     def remove_posicao(self, lista_posicoes: List[Tuple[int, int]]) -> None:
         for posicao in lista_posicoes:
@@ -25,18 +23,18 @@ class Pecas:
                 self._posicao_pecas.remove(posicao)
 
     def consulta_jogada(self, posicao: Tuple[int, int]) -> bool:
-        if posicao in self._jogadas_disponiveis.values():
-            return True, list(self._jogadas_disponiveis.keys())[list(self._jogadas_disponiveis.values()).index(posicao)]
-        return False, None
+        for jogada in self._jogadas_disponiveis:
+            if jogada.destino == posicao:
+                return jogada
+        return False
 
     @property
-    def _reseta_jogadas_disponiveis(self):
-        self._jogadas_disponiveis = dict({})
-        self._ganho_jogada = dict({})
+    def reseta_jogadas(self):
+        self._jogadas_disponiveis = []
 
     @property
-    def lista_jogadas(self) -> List[Tuple[Tuple[int, int], int]]:
-        return sorted(list(self._ganho_jogada.items()), key=lambda y: y[1], reverse=True)
+    def lista_jogadas(self) -> List[Jogada]:
+        return sorted(self._jogadas_disponiveis, key=lambda y: y.ganho, reverse=True)
 
     @property
     def lista_posicoes(self) -> List[Tuple[int, int]]:
