@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 class Jogada:
-    # Tirei ganho
+
     __slots__ = ('_caminho', '_destino')
 
     def __init__(self, caminho: List[Tuple[int, int]]):

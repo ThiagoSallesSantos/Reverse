@@ -1,6 +1,7 @@
 from reverse import Reverse
-from typing import NewType
+from interface import Interface
 
 if __name__ == '__main__':
-    reverse = Reverse()
+    reverse = Interface((8,8))
     reverse.start()
+    reverse.atualiza_tabela([(0,0), (7,7)])

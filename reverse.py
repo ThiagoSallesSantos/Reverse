@@ -2,67 +2,39 @@ from agent import Agent
 from pecas import Pecas
 from tabuleiro import Tabuleiro
 from jogada import Jogada
-from tabulate import tabulate
-from typing import Tuple
+from typing import Tuple, List, Union
 
 class Reverse:
 
-    __slots__ = ('_agent', '_tabuleiro', '_tabuleiro_pesos')
+    __slots__ = ('_agent', '_tabuleiro')
 
     def __init__(self) -> None:
         self._agent = Agent()
         self._tabuleiro = Tabuleiro()
-        self._tabuleiro_pesos = [[120, -20, 20, 5, 5, 20, -20, 120],
-                                [-20, -40, -5, -5, -5, -5, -40, -20],
-                                [20, -5, 15, 3, 3, 15, -5, 20],
-                                [5, -5, 3, 3, 3, 3, -5, 5],
-                                [5, -5, 3, 3, 3, 3, -5, 5],
-                                [20, -5, 15, 3, 3, 15, -5, 20],
-                                [-20, -40, -5, -5, -5, -5, -40, -20],
-                                [120, -20, 20, 5, 5, 20, -20, 120]]
-        
-    # TODO - mudar logica : colocar analiza jogada sem parametro (usar turn do proprio tabuleiro)
-    def start(self) -> None:
-        self._tabuleiro.atualiza_pecas(self._tabuleiro._lista_pecas)
-        self._tabuleiro.imprimi()
-        while True:
-            brancas, pretas = self._tabuleiro._lista_pecas
-            pecas = brancas if self._tabuleiro._turn == 'B' else pretas
-            
-            print("Peca " + pecas.cor + " jogando!")
-            self._tabuleiro.analisa_jogada(pecas)
-            texto = "\n".join("Movimento: " + str(x.destino) for x in pecas.lista_jogadas)
-            print(texto)
-            # TODO - Mudar logica de jogadas para Jogada,
-            #  já que agora que existe apenas uma por destino.
-            if self._tabuleiro._turn == 'P':
-                jogada = self.input_usr(pecas)
-            else:
-                print(id(self._tabuleiro), end=" -> ID TAB REVERSE\n")
-                jogada = self._agent.melhorJogada(self._tabuleiro)
+    
+    def start(self) -> List[Tuple[str, List[Tuple[int, int]]]]:
+        self._tabuleiro.atualiza_pecas()
+        return self._tabuleiro.lista_pecas_posicoes
 
-            self._tabuleiro.faz_jogada_valida(jogada)
-            
-            if jogada:
-            
-                print(jogada.caminho)
-                print(jogada.destino)
-            self._tabuleiro.imprimi()
+    def get_jogadas_disp(self, pecas:str) -> List[Jogada]:
+        return self._tabuleiro.analisa_jogada(self._tabuleiro.busca_pecas(pecas)).lista_jogadas
 
-    def input_usr(self, pecas: Pecas) -> Jogada:
-        x = None
-        y = None
-        jogada = None
-        while True:
-            x = int(input("x: "))
-            y = int(input("y: "))
-            jogada = pecas.consulta_jogada(tuple((x, y)))
-            if jogada:
-                break
-            print("Posição invalida!")
+    def valida_jogada(self, pecas:str, posicao:Tuple[int, int]) -> Union[bool, Jogada]:
+        jogada = self._tabuleiro.busca_pecas(pecas).consulta_jogada(posicao)
+        if jogada:
+            return jogada
+        return False
+
+    def realiza_jogada(self, pecas:str, jogada:Jogada) -> List[Tuple[int, int]]:
+        peca = self._tabuleiro.busca_pecas(pecas)
+        self._tabuleiro.faz_jogada(peca, jogada)
+        destinos = [x.destino for x in filter(lambda x: x!=jogada, peca.lista_jogadas)]
+        peca.reseta_jogadas
+        return destinos
+    
+    def agente(self, pecas:str) -> Jogada:
+        peca = self._tabuleiro.busca_pecas(pecas)
+        jogada = self._agent.melhorJogada(self._tabuleiro, peca)
+        self._tabuleiro.faz_jogada(peca, jogada)
+        peca.reseta_jogadas
         return jogada
-        
-
-    
-        
-    

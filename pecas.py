@@ -9,7 +9,7 @@ class Pecas:
         self._cor = cor
         self._posicao_pecas = [] + posicoes_iniciais
         self._jogadas_disponiveis = []
-    # TOTEST - Verifica destino, se ja existe na lista -> extende o caminho
+
     def set_jogada_disponivel(self, jogada: Jogada) -> None:
         if jogada:
             if jogada.destino in [j.destino for j in self._jogadas_disponiveis]:
@@ -20,7 +20,6 @@ class Pecas:
             else:   
                 self._jogadas_disponiveis.append(jogada)
 
-    # TODO - adiciona só posicao ainda nao existente
     def adiciona_posicao(self, lista_posicoes: List[Tuple[int, int]]) -> None:
         self._posicao_pecas += lista_posicoes
 
@@ -29,18 +28,16 @@ class Pecas:
             if posicao in self._posicao_pecas:
                 self._posicao_pecas.remove(posicao)
 
-    def consulta_jogada(self, posicao: Tuple[int, int]) -> bool:
-        jogadas = []
+    def consulta_jogada(self, posicao: Tuple[int, int]) -> Union[bool, Jogada]:
         for jogada in self._jogadas_disponiveis:
             if jogada.destino == posicao:
                 return jogada
         return False
 
     @property
-    def reseta_jogadas(self):
+    def reseta_jogadas(self) -> None:
         self._jogadas_disponiveis = []
 
-    # Tirei ganho
     @property
     def lista_jogadas(self) -> List[Jogada]:
         return self._jogadas_disponiveis
