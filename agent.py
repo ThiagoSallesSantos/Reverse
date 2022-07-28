@@ -34,7 +34,7 @@ class Agent:
         idx = 0
         a = -10000
         b = 100000
-        depth = 3
+        depth = 10
         tabuleiro.analisa_jogada(peca)
         jogadas = peca.lista_jogadas
         for i in range(0, len(jogadas)):
@@ -50,7 +50,7 @@ class Agent:
     def _min_max(self, tabuleiro, pecas, depth, alpha, beta, max_payer):
         peca = tabuleiro.busca_pecas(pecas)
         jogadas = peca.lista_jogadas
-        if depth == 0:
+        if depth == 0 or len(jogadas) == 0:
             return self._avaliacao(tabuleiro)
         
         if max_payer:
