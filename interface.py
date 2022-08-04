@@ -3,12 +3,13 @@ from typing import Tuple, List
 from reverse import Reverse
 from functools import partial
 
+## Classe Interface, responsável por criar e gerenciar a interface
 class Interface:
 
     __slots__ = ('_janela', '_lista_botoes', '_label', '_cores', '_reverse', '_bot', '_label_score', '_rodando')
 
-    def __init__(self, tamanho: Tuple[int, int]) -> "Interface":
-        self._janela = Tk()
+    def __init__(self, tamanho: Tuple[int, int]) -> "Interface": ## Contrutor da classe
+        self._janela = Tk() ## Cria a janela
         self._lista_botoes = None
         self._label = Label(self._janela, bg="#FFFFFF", anchor=CENTER, font=('Helvetica 14 bold'), pady=10)
         self._label_score = Label(self._janela, bg="#FFFFFF", anchor=CENTER, font=('Helvetica 14 bold'), pady=10)
@@ -19,18 +20,18 @@ class Interface:
                         "azul" : "",
                         "P": "#000000",
                         "B": "#FFFFFF"})
-        self._config()
-        self._rodando = True
-        self._reverse = Reverse()
-        self._monta_tabela(tamanho, "verde", "verdeEsc")
-        
-        self._bot = None
+        self._config() ## Realiza configuração da janela
+        self._rodando = True ## Variavel para saber se o jogo finalizou
+        self._reverse = Reverse() ## Instância do jogo reverse, que irá ser usado para pode consumir jogo e sua regras
+        self._monta_tabela(tamanho, "verde", "verdeEsc") ## Monta a tabela/janela
+        self._bot = None ## Variavel para saber onde foi que bot escolheu ir
 
-    def _config(self) -> None:
+    def _config(self) -> None: ## Realiza configuração da janela
         self._janela.title("Reverse")
         self._janela.geometry("900x680")
         self._janela.config(bg="#FFFFFF")
     
+    ## Metodo para montar a tabela na janela
     def _monta_tabela(self, tamanho: Tuple[int, int], cor:str, corEsc:str) -> None:
         self._update_score()
         self._label.pack()
@@ -58,16 +59,20 @@ class Interface:
     def _alerta(self, texto:str, cor:str) -> None:
         self._label.configure(text=texto, fg=cor)
 
+    ## Metodo que trata a jogada do usuário e também realiza a jogda do bot
     def _jogada(self, x:int, y:int) -> None:
-        if self._rodando:
+        if self._rodando: ## Ver se o jogo já terminou
+            ## Jogador jogando ##
             jogada = self._reverse.valida_jogada('P', (x, y))
-            if not jogada:
+            if not jogada: ## Ver se a jogada é valida
                 self._alerta("Jogada invalida", self._cores["vermelho"])
                 return
             destinos = self._reverse.realiza_jogada('P', jogada)
             self._atualiza_tabela(jogada.caminho, self._cores['P'], self._cores['P'])
             self._atualiza_tabela(destinos, self._cores['verde'], self._cores["verdeEsc"])
-            if self._is_over('B'):
+            ###############################
+            ## Agente jogando ##
+            if self._is_over('B'):## Ver se o jogo já terminou
                 return
             self._alerta("Agente jogando", self._cores["P"])
             self._ultima_jogada_agent(False)
@@ -78,7 +83,7 @@ class Interface:
                 self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
                 self._mostra_jogadas()
                 self._update_score()
-            if self._is_over('P'):
+            if self._is_over('P'):## Ver se o jogo já terminou
                 return
         
     # verifica se o jogo acabou, se sim finaliza o jogo
@@ -91,21 +96,25 @@ class Interface:
             return True
         return False
 
+    ## Exibi as jogadas disponiveis para o usuário
     def _mostra_jogadas(self) -> None:
         self._atualiza_tabela([x.destino for x in self._reverse.get_jogadas_disp('P')], self._cores["vermelho"], self._cores["vermelhoEsc"])
         self._alerta("Faça sua jogada", self._cores["P"])
 
+    ## Exibi onde foi o destino escolhido pelo bot
     def _ultima_jogada_agent(self, add:bool):
         if add:
             self._lista_botoes[self._bot[0]][self._bot[1]].configure(text="X")
         elif self._bot:
             self._lista_botoes[self._bot[0]][self._bot[1]].configure(text="")
 
+    ## Atualiza os estado da tabela, colocando as peças novas em seu respectivos lugares 
     def _atualiza_tabela(self, posicoes:List[Tuple[int, int]], cor:str, corEsc:str) -> None:
         for posicao in posicoes:
             self._lista_botoes[posicao[0]][posicao[1]].configure(bg=cor)
             self._lista_botoes[posicao[0]][posicao[1]].configure(activebackground=corEsc)
 
+    ## Inicia a interface e o estado atual da tabela
     def start(self) -> None:
         for pecas_posicoes in self._reverse.start():
             self._atualiza_tabela(pecas_posicoes[1], self._cores[pecas_posicoes[0]], self._cores[pecas_posicoes[0]])
