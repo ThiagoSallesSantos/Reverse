@@ -1,9 +1,7 @@
 from copy import deepcopy
-
-from sklearn.metrics import SCORERS
 from jogada import Jogada
-
 from pecas import Pecas
+
 # Classe agent
 class Agent:
     # construtor seta atributo do peso das posições no tabuleiro
