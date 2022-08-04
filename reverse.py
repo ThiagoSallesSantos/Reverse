@@ -1,5 +1,4 @@
 from agent import Agent
-from pecas import Pecas
 from tabuleiro import Tabuleiro
 from jogada import Jogada
 from typing import Tuple, List, Union

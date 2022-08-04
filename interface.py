@@ -2,11 +2,10 @@ from tkinter import *
 from typing import Tuple, List
 from reverse import Reverse
 from functools import partial
-import time
 
 class Interface:
 
-    __slots__ = ('_janela', '_lista_botoes', '_label', '_cores', '_reverse', '_bot', '_label_score')
+    __slots__ = ('_janela', '_lista_botoes', '_label', '_cores', '_reverse', '_bot', '_label_score', '_rodando')
 
     def __init__(self, tamanho: Tuple[int, int]) -> "Interface":
         self._janela = Tk()
@@ -21,6 +20,7 @@ class Interface:
                         "P": "#000000",
                         "B": "#FFFFFF"})
         self._config()
+        self._rodando = True
         self._reverse = Reverse()
         self._monta_tabela(tamanho, "verde", "verdeEsc")
         
@@ -59,35 +59,33 @@ class Interface:
         self._label.configure(text=texto, fg=cor)
 
     def _jogada(self, x:int, y:int) -> None:
-        jogada = self._reverse.valida_jogada('P', (x, y))
-        if not jogada:
-            self._alerta("Jogada invalida", self._cores["vermelho"])
-            return
-        destinos = self._reverse.realiza_jogada('P', jogada)
-        self._atualiza_tabela(jogada.caminho, self._cores['P'], self._cores['P'])
-        self._atualiza_tabela(destinos, self._cores['verde'], self._cores["verdeEsc"])
-        self._is_over('B')
-        self._alerta("Agente jogando", self._cores["P"])
-        self._ultima_jogada_agent(False)
-        jogada = self._reverse.agente("B")
-        if jogada:
-            self._bot = jogada.destino
-            self._ultima_jogada_agent(True)
-            self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
-            self._mostra_jogadas()
-            self._update_score()
-        self._is_over('P') 
+        if self._rodando:
+            jogada = self._reverse.valida_jogada('P', (x, y))
+            if not jogada:
+                self._alerta("Jogada invalida", self._cores["vermelho"])
+                return
+            destinos = self._reverse.realiza_jogada('P', jogada)
+            self._atualiza_tabela(jogada.caminho, self._cores['P'], self._cores['P'])
+            self._atualiza_tabela(destinos, self._cores['verde'], self._cores["verdeEsc"])
+            self._is_over('B')
+            self._alerta("Agente jogando", self._cores["P"])
+            self._ultima_jogada_agent(False)
+            jogada = self._reverse.agente("B")
+            if jogada:
+                self._bot = jogada.destino
+                self._ultima_jogada_agent(True)
+                self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
+                self._mostra_jogadas()
+                self._update_score()
+            self._is_over('P') 
         
     # verifica se o jogo acabou, se sim finaliza o jogo
     def _is_over(self, color:str):
         jogadas_disp = self._reverse.get_jogadas_disp(color)
         if len(jogadas_disp) == 0:
-            # Game over -> espera 10 segundos e fecha o jogo
-            self._alerta("GAME OVER \n o jogo fechara em 10 segundos", cor=self._cores['vermelho'])
-            time.sleep(10)
-            self._janela.quit()
-            pass
-            
+            # Game over 
+            self._alerta("GAME OVER!", cor=self._cores['vermelho'])
+            self._rodando = False
 
     def _mostra_jogadas(self) -> None:
         self._atualiza_tabela([x.destino for x in self._reverse.get_jogadas_disp('P')], self._cores["vermelho"], self._cores["vermelhoEsc"])

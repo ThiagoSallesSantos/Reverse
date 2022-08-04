@@ -1,5 +1,3 @@
-import imp
-from typing import List, Tuple
 from copy import deepcopy
 
 from sklearn.metrics import SCORERS
