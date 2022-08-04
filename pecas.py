@@ -21,12 +21,18 @@ class Pecas:
                 self._jogadas_disponiveis.append(jogada)
 
     def adiciona_posicao(self, lista_posicoes: List[Tuple[int, int]]) -> None:
+        
         self._posicao_pecas += lista_posicoes
+        self._posicao_pecas = list(dict.fromkeys(self._posicao_pecas))
+
+        print(self.cor, "-add: ",self.lista_posicoes, end="\n")
 
     def remove_posicao(self, lista_posicoes: List[Tuple[int, int]]) -> None:
         for posicao in lista_posicoes:
             if posicao in self._posicao_pecas:
                 self._posicao_pecas.remove(posicao)
+        print(self.cor, "-remove: ",self.lista_posicoes, end="\n")
+        
 
     def consulta_jogada(self, posicao: Tuple[int, int]) -> Union[bool, Jogada]:
         for jogada in self._jogadas_disponiveis:

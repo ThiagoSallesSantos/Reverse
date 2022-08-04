@@ -2,15 +2,17 @@ from tkinter import *
 from typing import Tuple, List
 from reverse import Reverse
 from functools import partial
+import time
 
 class Interface:
 
-    __slots__ = ('_janela', '_lista_botoes', '_label', '_cores', '_reverse', '_bot')
+    __slots__ = ('_janela', '_lista_botoes', '_label', '_cores', '_reverse', '_bot', '_label_score')
 
     def __init__(self, tamanho: Tuple[int, int]) -> "Interface":
         self._janela = Tk()
         self._lista_botoes = None
         self._label = Label(self._janela, bg="#FFFFFF", anchor=CENTER, font=('Helvetica 14 bold'), pady=10)
+        self._label_score = Label(self._janela, bg="#FFFFFF", anchor=CENTER, font=('Helvetica 14 bold'), pady=10)
         self._cores = dict({"verde" : "#00BB0D", 
                         "verdeEsc" : "#006E07", 
                         "vermelho" : "#FF040F",
@@ -19,8 +21,9 @@ class Interface:
                         "P": "#000000",
                         "B": "#FFFFFF"})
         self._config()
-        self._monta_tabela(tamanho, "verde", "verdeEsc")
         self._reverse = Reverse()
+        self._monta_tabela(tamanho, "verde", "verdeEsc")
+        
         self._bot = None
 
     def _config(self) -> None:
@@ -29,7 +32,9 @@ class Interface:
         self._janela.config(bg="#FFFFFF")
     
     def _monta_tabela(self, tamanho: Tuple[int, int], cor:str, corEsc:str) -> None:
+        self._update_score()
         self._label.pack()
+        self._label_score.pack()
         tabela = Frame(self._janela)
         tabela.config(bg="#FFFFFF")
         tabela.place(relx = 0.1, rely = 0.1, relwidth = 0.8, relheight = 0.8)
@@ -43,7 +48,13 @@ class Interface:
                 self._lista_botoes[i].append(Button(tabela))
                 self._lista_botoes[i][j].config(bg=self._cores["verde"], borderwidth=1, activebackground=self._cores["verdeEsc"], command = funcao)
                 self._lista_botoes[i][j].place(relx = y*j, rely = x*i, relwidth = y, relheight = x)
+    
+    # metodo que atualiza score do jogo na interface
+    def _update_score(self):
+        score_brancas, score_pretas = self._reverse.get_game_score()
+        self._label_score.configure(text="Brancas {} : {} Pretas".format(score_brancas, score_pretas), fg=self._cores["P"])
 
+    # metodo que muda texto do alerta
     def _alerta(self, texto:str, cor:str) -> None:
         self._label.configure(text=texto, fg=cor)
 
@@ -55,13 +66,28 @@ class Interface:
         destinos = self._reverse.realiza_jogada('P', jogada)
         self._atualiza_tabela(jogada.caminho, self._cores['P'], self._cores['P'])
         self._atualiza_tabela(destinos, self._cores['verde'], self._cores["verdeEsc"])
+        self._is_over('B')
         self._alerta("Agente jogando", self._cores["P"])
         self._ultima_jogada_agent(False)
         jogada = self._reverse.agente("B")
-        self._bot = jogada.destino
-        self._ultima_jogada_agent(True)
-        self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
-        self._mostra_jogadas()
+        if jogada:
+            self._bot = jogada.destino
+            self._ultima_jogada_agent(True)
+            self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
+            self._mostra_jogadas()
+            self._update_score()
+        self._is_over('P') 
+        
+    # verifica se o jogo acabou, se sim finaliza o jogo
+    def _is_over(self, color:str):
+        jogadas_disp = self._reverse.get_jogadas_disp(color)
+        if len(jogadas_disp) == 0:
+            # Game over -> espera 10 segundos e fecha o jogo
+            self._alerta("GAME OVER \n o jogo fechara em 10 segundos", cor=self._cores['vermelho'])
+            time.sleep(10)
+            self._janela.quit()
+            pass
+            
 
     def _mostra_jogadas(self) -> None:
         self._atualiza_tabela([x.destino for x in self._reverse.get_jogadas_disp('P')], self._cores["vermelho"], self._cores["vermelhoEsc"])

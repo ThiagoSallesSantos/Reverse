@@ -35,6 +35,12 @@ class Reverse:
     def agente(self, pecas:str) -> Jogada:
         peca = self._tabuleiro.busca_pecas(pecas)
         jogada = self._agent.melhorJogada(self._tabuleiro, peca)
-        self._tabuleiro.faz_jogada(peca, jogada)
-        peca.reseta_jogadas
-        return jogada
+        if jogada:
+            self._tabuleiro.faz_jogada(peca, jogada)
+            peca.reseta_jogadas
+            return jogada
+        else:
+            return None
+
+    def get_game_score(self) -> Tuple[int, int]:
+        return self._tabuleiro.game_score

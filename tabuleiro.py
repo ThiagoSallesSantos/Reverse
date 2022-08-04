@@ -26,7 +26,7 @@ class Tabuleiro:
         return [(x.cor, x.lista_posicoes) for x in self._lista_pecas]
 
     def faz_jogada(self, pecas:Pecas, jogada:Jogada):
-        if pecas.cor == "B":
+        if pecas.cor == 'B':
             pecas_adv = self.busca_pecas("P")
         else:
             pecas_adv = self.busca_pecas("B")
@@ -118,6 +118,11 @@ class Tabuleiro:
         for pecas in self._lista_pecas:
             for peca in pecas.lista_posicoes:
                 self._tabuleiro[peca[0]][peca[1]] = pecas.cor
+
+    @property
+    def game_score(self) -> Tuple[int, int]:
+        pecas_brancas, pecas_pretas = self._lista_pecas
+        return len(pecas_brancas.lista_posicoes), len(pecas_pretas.lista_posicoes)  
 
     @property
     def imprimi(self) -> None:

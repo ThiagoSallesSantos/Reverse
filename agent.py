@@ -38,15 +38,19 @@ class Agent:
         depth = 3
         tabuleiro.analisa_jogada(peca)
         jogadas = peca.lista_jogadas
-        for i in range(0, len(jogadas)):
-            tempBoard = deepcopy(tabuleiro)
-            peca = tempBoard.busca_pecas(peca.cor)
-            tempBoard.faz_jogada(peca, jogadas[i])
-            minmax = self._min_max(tempBoard, "P" if peca.cor == "B" else "B", depth, a, b, True)
-            if minmax>a:
-                a=minmax
-                idx = i
-        return jogadas[idx]
+        if len(jogadas) != 0:
+            for i in range(0, len(jogadas)):
+                tempBoard = deepcopy(tabuleiro)
+                peca = tempBoard.busca_pecas(peca.cor)
+                print("From-minMax \n")
+                tempBoard.faz_jogada(peca, jogadas[i])
+                minmax = self._min_max(tempBoard, "P" if peca.cor == "B" else "B", depth, a, b, True)
+                if minmax>a:
+                    a=minmax
+                    idx = i
+            return jogadas[idx]
+        else:
+            return None
 
     # método auxiliar recursivo para definição da melhor jogada imediata (min_max)
     def _min_max(self, tabuleiro, pecas, depth, alpha, beta, max_payer):
@@ -61,6 +65,7 @@ class Agent:
             max_eval = -10000
             for jogada in jogadas:
                 tempBoard = deepcopy(tabuleiro)
+                print("From-minMax \n")
                 tempBoard.faz_jogada(peca, jogada)
                 eval = self._min_max(tempBoard, "P" if peca.cor == "B" else "B", depth-1, alpha, beta, False)
                 max_eval = max(max_eval, eval)
@@ -75,6 +80,7 @@ class Agent:
             min_eval = 10000
             for jogada in jogadas:
                 tempBoard = deepcopy(tabuleiro)
+                print("From-minMax \n")
                 tempBoard.faz_jogada(peca, jogada)
                 eval = self._min_max(tempBoard, "P" if peca.cor == "B" else "B", depth-1, alpha, beta, True)
                 min_eval = min(min_eval, eval)
