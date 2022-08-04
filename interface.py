@@ -67,7 +67,8 @@ class Interface:
             destinos = self._reverse.realiza_jogada('P', jogada)
             self._atualiza_tabela(jogada.caminho, self._cores['P'], self._cores['P'])
             self._atualiza_tabela(destinos, self._cores['verde'], self._cores["verdeEsc"])
-            self._is_over('B')
+            if self._is_over('B'):
+                return
             self._alerta("Agente jogando", self._cores["P"])
             self._ultima_jogada_agent(False)
             jogada = self._reverse.agente("B")
@@ -77,7 +78,8 @@ class Interface:
                 self._atualiza_tabela(jogada.caminho, self._cores['B'], self._cores['B'])
                 self._mostra_jogadas()
                 self._update_score()
-            self._is_over('P') 
+            if self._is_over('P'):
+                return
         
     # verifica se o jogo acabou, se sim finaliza o jogo
     def _is_over(self, color:str):
@@ -86,6 +88,8 @@ class Interface:
             # Game over 
             self._alerta("GAME OVER!", cor=self._cores['vermelho'])
             self._rodando = False
+            return True
+        return False
 
     def _mostra_jogadas(self) -> None:
         self._atualiza_tabela([x.destino for x in self._reverse.get_jogadas_disp('P')], self._cores["vermelho"], self._cores["vermelhoEsc"])
